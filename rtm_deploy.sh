@@ -123,9 +123,9 @@ fi
 
 
 if [ $OPTS -eq 0 ]; then
-	echo -e "*** INFO: Usage: $0 [-h] [-E|-e] [-R|r] [-s hh:mm|+m|now] -a amdaddress -f deployfile [-u user] [-p password | -i identfile]"
+	echo -e "*** INFO: Usage: $0 [-h] [-E|-e] [-R|r] [-s hh:mm|+m|now] -a amdaddress|listfile -f deployfile [-u user] [-p password | -i identfile]"
 	echo -e "-h This help"
-	echo -e "-a address for AMD to deploy to. Required."
+	echo -e "-a amdaddress|listfile address or if a file list one per line for AMDs to deploy to. Required."
 	echo -e "-f Full path to upgrade.*.bin file. Required."
 	echo -e "-u user with root or sudo rights to copy and execute upgrade file. Default root."
 	echo -e "-p password for user. Default greenmouse."
@@ -146,11 +146,34 @@ if [ ! -r $DEPFILE ]; then
 	exit 1
 fi
 
+#check if passed amd address is a file (treat it as a list) or not (a single amd address).
+if [ -r $AMDADDR ]; then
+	#it's a list file
+	#read file loading each line into var
+	AMDLIST=""
+	while read line; do
+		if [[ $line == "#"* ]]; then continue; fi		#skip comments
+		if [[ $line == "" ]]; then continue; fi			# blank lines
+
+		if [[ $line =~ ^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|[a-zA-Z0-9\.-]+|\[?[0-9a-fA-F:]+\]?)$ ]]; then		#rudimentary ip/fqdn/ipv6 test
+			AMDLIST="$AMDLIST$line\n"
+		else
+			debugecho "AMDLIST nonmatching line: ${line}"
+		fi
+	done < <(cat $AMDADDR)
+	AMDLIST=${AMDLIST%%\\n}		#remove trailing comma
+else
+	#it's not a list file. nothing to do.
+	AMDLIST=$AMDADDR
+fi
+
 
 debugecho "Configuration:"
 debugecho "DEPUSER: '$DEPUSER', DEPPASS: '$DEPPASS', IDENT: '$IDENT', AMDADDR: '$AMDADDR' "
 debugecho "DEPPATH: '$DEPPATH', REBOOT: '$REBOOT', REBOOTSCHED: '$REBOOTSCHED', DEPEXEC: '$DEPEXEC' "
+debugecho "AMDLIST: '$AMDLIST' "
 
+#exit
 
 #get dependencies for config
 SCP=`which scp`
@@ -191,55 +214,76 @@ fi
 
 if [ ! -x $DEPFILE ]; then chmod +x $DEPFILE; debugecho "chmod +x to '$DEPFILE'"; fi
 
-echo -e "\e[34mrtm_deploy.sh\e[0m Deploying ${DEPFILE##*/} to ${AMDADDR}"
+SUCCESS=""
+FAIL=""
 
-#build SCP command line
-SCPCOMMAND="${DEPPASS}${SCP}${VERBOSE} -p${IDENT} ${DEPFILE} ${DEPUSER}@${AMDADDR}:${DEPPATH}"
-debugecho "SCP command: $SCPCOMMAND"
+while read line; do
 
-#export envvar for sshpass
-export SSHPASS=$SSHPASS
+	AMDADDR=$line
+	echo -e "\e[34mrtm_deploy.sh\e[0m Deploying ${DEPFILE##*/} to ${AMDADDR}"
 
-#run SCP command
-setdebugecho
-RESULT=`$SCPCOMMAND`
-EC=$?
-unsetdebugecho
-if [[ $EC -ne 0 ]]; then
-	echo -e "\e[31m*** FATAL:\e[0m SCP failed."
-	exit 1
-fi
-echo -e "\e[32m*** SUCCESS:\e[0m Copied ${DEPFILE##*/} to ${AMDADDR}."
+	#build SCP command line
+	SCPCOMMAND="${DEPPASS}${SCP}${VERBOSE} -p${IDENT} ${DEPFILE} ${DEPUSER}@${AMDADDR}:${DEPPATH}"
+	debugecho "SCP command: $SCPCOMMAND"
 
+	#export envvar for sshpass
+	export SSHPASS=$SSHPASS
 
-#build SSH command line to run copied file
-if [ "$DEPEXEC" == "1" ]; then
-	if [ $REBOOT = 1 ]; then REBOOT=" && shutdown -r $REBOOTSCHED"; else REBOOT=""; fi
-	SSHCOMMAND="${DEPPASS}${SSH}${VERBOSE} ${IDENT} ${DEPUSER}@${AMDADDR} /usr/bin/yes n | /usr/bin/perl ${DEPPATH}/${DEPFILE##*/}${REBOOT}"
-	debugecho "SSH command: $SSHCOMMAND"
-
-	#run SSH command
+	#run SCP command
 	setdebugecho
-	RESULT=`$SSHCOMMAND`
+	RESULT=`$SCPCOMMAND`
 	EC=$?
 	unsetdebugecho
-	debugecho $RESULT
-	if [ $EC == 0 ]; then
-		echo -n
-	elif [ $EC == 255 ]; then
-		echo -e "\e[31m*** FATAL:\e[0m SSH failed. EC=$EC"
-		exit 1
-	else
-		echo -e "\e[31m*** FATAL:\e[0m Remote command failed. EC=$EC"
-		echo -e "\e[31m*** DEBUG:\e[0m Command line: '${SSHCOMMAND}'"
-		echo -e "\e[31m*** DEBUG:\e[0m Result: '${RESULT}'"
-		exit 1
+	if [[ $EC -ne 0 ]]; then
+		echo -e "\e[31m*** FATAL:\e[0m SCP to ${AMDADDR} failed."
+		FAIL="${FAIL}${AMDADDR}\n"
+		continue
 	fi
+	echo -e "\e[32m*** SUCCESS:\e[0m Copied ${DEPFILE##*/} to ${AMDADDR}."
+	if [ $DEPEXEC == 0 ]; then SUCCESS="${SUCCESS}${AMDADDR}\n"; fi
 
-	echo -e "\e[32m*** SUCCESS:\e[0m Deployed ${DEPFILE##*/} on ${AMDADDR}."
-fi
+	#build SSH command line to run copied file
+	if [ "$DEPEXEC" == "1" ]; then
+		if [ $REBOOT = 1 ]; then REBOOT=" && shutdown -r $REBOOTSCHED"; else REBOOT=""; fi
+		SSHCOMMAND="${DEPPASS}${SSH}${VERBOSE} ${IDENT} ${DEPUSER}@${AMDADDR} /usr/bin/yes n | /usr/bin/perl ${DEPPATH}/${DEPFILE##*/}${REBOOT}"
+		debugecho "SSH command: $SSHCOMMAND"
+
+		#run SSH command
+		setdebugecho
+		RESULT=`$SSHCOMMAND`
+		EC=$?
+		unsetdebugecho
+		debugecho $RESULT
+		if [ $EC == 0 ]; then
+			echo -n
+		elif [ $EC == 255 ]; then
+			echo -e "\e[31m*** FATAL:\e[0m SSH to ${AMDADDR} failed. EC=$EC"
+			FAIL="${FAIL}${AMDADDR}\n"
+			continue
+		else
+			echo -e "\e[31m*** FATAL:\e[0m Remote command to ${AMDADDR} failed. EC=$EC"
+			echo -e "\e[31m*** DEBUG:\e[0m Command line: '${SSHCOMMAND}'"
+			echo -e "\e[31m*** DEBUG:\e[0m Result: '${RESULT}'"
+			FAIL="${FAIL}${AMDADDR}\n"
+			continue
+		fi
+
+		echo -e "\e[32m*** SUCCESS:\e[0m Deployed ${DEPFILE##*/} on ${AMDADDR}."
+		SUCCESS="${SUCCESS}${AMDADDR}\n"
+	fi
+done < <(echo -e "$AMDLIST")
+
 
 #finish
-exit 0
-
+echo
+echo -e "rtm_deploy.sh complete"
+RET=0
+if [[ $FAIL == "" ]]; then FAIL="(none)"; else RET=1; fi
+if [[ $SUCCESS == "" ]]; then SUCCESS="(none)"; RET=1; fi
+echo -e "\e[32mSuccessfully deployed to:\e[0m"
+echo -e "${SUCCESS}"
+echo -e "\e[31mFailed deployment to:\e[0m"
+echo -e "${FAIL}"
+debugecho "RET: $RET"
+exit $RET
 
