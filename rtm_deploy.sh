@@ -214,7 +214,7 @@ echo -e "\e[32m*** SUCCESS:\e[0m Copied ${DEPFILE##*/} to ${AMDADDR}."
 
 #build SSH command line to run copied file
 if [ "$DEPEXEC" == "1" ]; then
-	if [ $REBOOT = 1 ]; then REBOOT=" && shutdown -r now"; else REBOOT=""; fi
+	if [ $REBOOT = 1 ]; then REBOOT=" && shutdown -r $REBOOTSCHED"; else REBOOT=""; fi
 	SSHCOMMAND="${DEPPASS}${SSH}${VERBOSE} ${IDENT} ${DEPUSER}@${AMDADDR} /usr/bin/yes n | /usr/bin/perl ${DEPPATH}/${DEPFILE##*/}${REBOOT}"
 	debugecho "SSH command: $SSHCOMMAND"
 
