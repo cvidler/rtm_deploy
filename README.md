@@ -5,7 +5,7 @@ Remotely deploy AMD software updates
 
 ### rtm_deploy.sh 
 
-`rtm_deploy.sh [-h] [-d] [-E|-e] [-R|r] [-s hh:mm|+m|now] -a amdaddress -f deployfile [-u user] [-p password | -i identfile]`
+`rtm_deploy.sh [-h] [-d] [-E|-e] [-R|-r] [-s hh:mm|+m|now] -a amdaddress -f deployfile [-u user] [-p password | -i identfile]`
 
 **Help**
 
