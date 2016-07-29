@@ -17,9 +17,9 @@ Remotely deploy AMD software updates
 
 **Required parameters**
 
-`-a address` AMD to deploy to, supports IP addresses and FQDNs. Required.
+`-a address` AMD to deploy to, supports IP addresses and FQDNs. **Required**.
 
-`-f deployfile` Full path to upgrade.bin file to copy and execute on AMD. Required.
+`-f deployfile` Full path to upgrade.bin file to copy and execute on AMD. **Required**.
 
 
 
@@ -43,7 +43,7 @@ These are all optional, if none are specified script will try your logged on use
 
 **Post copy execution**
 
-`-e` Execute upgrade once copied. Default.
+`-e` Execute upgrade once copied. **Default**.
 
 `-E` DO NOT Execute upgrade once copied. Use this if you're wanting to copy a non-upgrade package.
 
@@ -53,11 +53,11 @@ These are all optional, if none are specified script will try your logged on use
 
 These have no effect if exeuction is disabled with `-E`
 
-`-r` Reboot after upgrade complete. Default.
+`-r` Reboot after upgrade complete. **Default**.
 
 `-R` DO NOT reboot after upgrade completes.
 
-`-s` Reboot schedule 'hh:mm' 24hr clock, '+m' m minutes from now, or 'now'. Default 'now'. (No effect with `-R`)
+`-s` Reboot schedule 'hh:mm' 24hr clock, '+m' m minutes from now, or 'now'. Default '**now**'. (No effect with `-R`)
 
 
 
