@@ -7,7 +7,7 @@ Remotely deploy AMD software updates
 
 `rtm_deploy.sh [-h] [-d] [-E|-e] [-R|r] [-s hh:mm|+m|now] -a amdaddress -f deployfile [-u user] [-p password | -i identfile]`
 
-*Help*
+**Help**
 
 `-h` Usage help.
 
@@ -15,7 +15,7 @@ Remotely deploy AMD software updates
 
 
 
-*Required parameters*
+**Required parameters**
 
 `-a address` AMD to deploy to, supports IP addresses and FQDNs. Required.
 
@@ -23,7 +23,7 @@ Remotely deploy AMD software updates
 
 
 
-*Authentication*
+**Authentication**
 
 These are all optional, if none are specified script will try your logged on users private keys automatically, then fallback to the script default user/password.
 
@@ -37,8 +37,11 @@ These are all optional, if none are specified script will try your logged on use
 `-p` and `-i` are exclusive, `-i` takes precedence as it is more secure.
 
 
+*Note:* this is all Linux OS credentials, not DCRUM/CSS credentials.
 
-*Post copy execution*
+
+
+**Post copy execution**
 
 `-e` Execute upgrade once copied. Default.
 
@@ -46,9 +49,9 @@ These are all optional, if none are specified script will try your logged on use
 
 
 
-*Post upgrade reboot*
+**Post upgrade reboot**
 
-These have no effect if exeuctino is disabled with `-E`
+These have no effect if exeuction is disabled with `-E`
 
 `-r` Reboot after upgrade complete. Default.
 
@@ -66,6 +69,11 @@ e.g.
 
 `-s 23:59` will postpone reboot until 23:59 (AMD time).
 
+
+
+**Returns**
+
+Return code `0` indicates success, `1` indicates failure, printed messages indicate failure.
 
 
 
