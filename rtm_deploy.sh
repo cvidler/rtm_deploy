@@ -182,7 +182,7 @@ debugecho "DEPUSER: '$DEPUSER', DEPPASS: '$DEPPASS', IDENT: '$IDENT', AMDADDR: '
 debugecho "DEPPATH: '$DEPPATH', REBOOT: '$REBOOT', REBOOTSCHED: '$REBOOTSCHED', DEPEXEC: '$DEPEXEC' "
 debugecho "AMDLIST: '$AMDLIST' "
 
-exit
+#exit
 
 #get dependencies for config
 SCP=`which scp`
