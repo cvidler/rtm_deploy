@@ -265,7 +265,9 @@ while read line; do
 		debugecho $RESULT
 		if [ $EC == 0 ]; then
 			echo -n
-		elif [ $EC == 255 ]; then
+		elif [ $EC == 255 ] && [ "$REBOOTSCHED" == "now" ]; then			# 'now' reboot causes SSH to fail giving an unneeded 255 return code, ignore in that specific case
+			echo -n
+		elif [ $EC == 255 ] && [ ! "$REBOOTSCHED" == "now" ]; then
 			echo -e "\e[31m*** FATAL:\e[0m SSH to ${AMDADDR} failed. EC=$EC"
 			FAIL="${FAIL}${AMDADDR}\n"
 			continue

@@ -3,6 +3,10 @@ Remotely deploy AMD software updates
 
 ## Usage
 
+
+Note it is recommened you test the upgrade package manually on an AMD to ensure there's no changes to dependencies or issues on your AMD SOE before using the script to roll out automatically.
+
+
 ### rtm_deploy.sh 
 
 `rtm_deploy.sh [-h] [-d] [-E|-e] [-R|-r] [-s hh:mm|+m|now] -a amdaddress -f deployfile [-u user] [-p password | -i identfile]`
@@ -92,8 +96,15 @@ No additional dependencies requried and nothing to install/configure on the AMD.
 
 ## Tested Platform
 
+
+
+Running Script
 - CentOS 7
 - RHEL 7
 
 
+
+Deploying to AMDs on
+- RHEL 6.6
+- RHEL 7.2
 
