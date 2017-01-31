@@ -199,7 +199,7 @@ debugecho "SCP: '$SCP', SSH: '$SSH' "
 
 
 #build configs
-if [ $DEBUG == 1 ]; then VERBOSE=" -v"; fi		#in debug mode add verbosity to SCP and SSH commands later on
+if [[ $DEBUG -ge 1 ]]; then VERBOSE=" -v"; fi		#in debug mode add verbosity to SCP and SSH commands later on
 
 #DEPPASS="$DEPPASS"
 if [ ! "$IDENT" == "" ]; then 
