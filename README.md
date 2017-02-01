@@ -9,7 +9,7 @@ Note it is recommened you test the upgrade package manually on an AMD to ensure 
 
 ### rtm_deploy.sh 
 
-`rtm_deploy.sh [-h] [-d] [-E|-e] [-R|-r] [-s hh:mm|+m|now] -a amdaddress -f deployfile [-u user] [-p password | -i identfile]`
+`rtm_deploy.sh [-h] [-d] [-E|-e] [-R|-r] [-s hh:mm|+m|now] -a amdaddress|listfile -f deployfile [-u user] [-p password | -i identfile]`
 
 **Help**
 
