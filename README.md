@@ -9,7 +9,7 @@ Note it is recommened you test the upgrade package manually on an AMD to ensure 
 
 ### rtm_deploy.sh 
 
-`rtm_deploy.sh [-h] [-d] [-E|-e] [-R|-r] [-s hh:mm|+m|now] -a amdaddress|listfile -f deployfile [-u user] [-p password | -i identfile]`
+`rtm_deploy.sh [-h] [-d] [-E|-e] [-m] [-R|-r] [-s hh:mm|+m|now] -a amdaddress|listfile -f deployfile [-u user] [-p password | -i identfile]`
 
 **Help**
 
@@ -51,6 +51,7 @@ These are all optional, if none are specified script will try your logged on use
 
 `-E` DO NOT Execute upgrade once copied. Use this if you're wanting to copy a non-upgrade package.
 
+ -m  Use manual upgrade (12.4.13+ only) otherwise automatic upgrade. (No effect with -E)
 
 
 **Post upgrade reboot**
