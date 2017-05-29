@@ -51,7 +51,7 @@ These are all optional, if none are specified script will try your logged on use
 
 `-E` DO NOT Execute upgrade once copied. Use this if you're wanting to copy a non-upgrade package.
 
- -m  Use manual upgrade (12.4.13+ only) otherwise automatic upgrade. (No effect with -E)
+`-m` Use manual upgrade (12.4.13+ only deployment file version is checked) otherwise automatic upgrade. (No effect with -E)
 
 
 **Post upgrade reboot**
