@@ -9,7 +9,7 @@ Note it is recommened you test the upgrade package manually on an AMD to ensure 
 
 ### rtm_deploy.sh 
 
-`rtm_deploy.sh [-h] [-d] [-E|-e] [-R|-r] [-s hh:mm|+m|now] -a amdaddress -f deployfile [-u user] [-p password | -i identfile]`
+`rtm_deploy.sh [-h] [-d] [-E|-e] [-R|-r] [-s hh:mm|+m|now] -a amdaddress|listfile -f deployfile [-u user] [-p password | -i identfile]`
 
 **Help**
 
@@ -21,7 +21,7 @@ Note it is recommened you test the upgrade package manually on an AMD to ensure 
 
 **Required parameters**
 
-`-a address` AMD to deploy to, supports IP addresses and FQDNs. **Required**.
+`-a amdaddress|listfile` IP/FQDN address of an individual AMD or if a file list one per line for AMDs to deploy to.  **Required**.
 
 `-f deployfile` Full path to upgrade.bin file to copy and execute on AMD. **Required**.
 
