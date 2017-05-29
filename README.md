@@ -106,6 +106,6 @@ Running Script
 
 
 Deploying to AMDs on
-- RHEL 6.6
-- RHEL 7.2
+- RHEL 6.6+
+- RHEL 7.2+
 
