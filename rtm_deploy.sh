@@ -12,6 +12,7 @@ DEPPASS=greenmouse
 DEPEXEC=1
 IDENT=""
 REBOOT=1
+MANUAL=0
 REBOOTSCHED=now
 
 
@@ -35,7 +36,7 @@ function unsetdebugecho {
 
 #command line parameters
 OPTS=0
-while getopts ":hdeErRf:a:u:p:i:s:" OPT; do
+while getopts ":hdeErRmf:a:u:p:i:s:" OPT; do
 	case $OPT in
 		h)
 			OPTS=0	#show help
@@ -62,6 +63,10 @@ while getopts ":hdeErRf:a:u:p:i:s:" OPT; do
 		R)
 			OPTS=1
 			REBOOT=0
+			;;
+		m)
+			OPTS=1
+			MANUAL=1
 			;;
 		s)
 			OPTS=1
@@ -132,6 +137,7 @@ if [ $OPTS -eq 0 ]; then
 	echo -e "-i SSH private key identity file."
 	echo -e "-e Execute upgrade once copied. Default."
 	echo -e "-E DO NOT Execute upgrade once copied"
+	echo -e "-m Manual upgrade process, otherwise automatic. (No effect with -E)"
 	echo -e "-r Reboot upgrade once copied. Default. (No effect with -E)"
 	echo -e "-R DO NOT reboot upgrade once copied."
 	echo -e "-s Reboot schedule 'hh:mm' 24hr clock, '+m' m minutes from now, or 'now'. Default 'now'. (No effect with -R)"
@@ -145,6 +151,16 @@ if [ ! -r $DEPFILE ]; then
 	echo -e "\e[31m*** FATAL:\e[0m Upgrade file $DEPFILE not present or inaccessible."
 	exit 1
 fi
+
+#check if version requires manual/auto mandatory command line param (12.4.13+, 17+)
+VER=`echo "$DEPFILE" | awk -F"-" ' { print $6$7$8 } '`
+debugecho "VER: [$VER]"
+if [ $VER -ge 120413 ]; then
+	if [ $MANUAL -eq 1 ]; then MADCMD=" --manual"; else MADCMD=" --automatic"; fi
+else
+	MADCMD=""
+fi
+debugecho "MADCMD: [$MADCMD]"
 
 #check if passed amd address is a file (treat it as a list) or not (a single amd address).
 if [ -r $AMDADDR ]; then
@@ -254,7 +270,7 @@ while read line; do
 	#build SSH command line to run copied file
 	if [ "$DEPEXEC" == "1" ]; then
 		if [ $REBOOT = 1 ]; then REBOOT=" && shutdown -r $REBOOTSCHED"; else REBOOT=""; fi
-		SSHCOMMAND="${DEPPASS}${SSH}${VERBOSE} ${IDENT} ${DEPUSER}@${AMDADDR} /usr/bin/yes n | /usr/bin/perl ${DEPPATH}/${DEPFILE##*/}${REBOOT}"
+		SSHCOMMAND="${DEPPASS}${SSH}${VERBOSE} ${IDENT} ${DEPUSER}@${AMDADDR} /usr/bin/yes n | /usr/bin/perl ${DEPPATH}/${DEPFILE##*/}${MADCMD}${REBOOT}"
 		debugecho "SSH command: $SSHCOMMAND"
 
 		#run SSH command
